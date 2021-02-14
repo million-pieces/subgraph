@@ -1,0 +1,25 @@
+type User @entity {
+  id: ID! # address of user
+
+  purchaseHistory: [Purchase!]!
+  currentSegments: [Segment!]
+}
+
+type Segment @entity {
+  id: ID! # nft unique ID
+
+  currentOwner: User!
+  isBigSegment: Boolean!
+  purchaseHistory: [Purchase!]
+}
+
+type Purchase @entity {
+  id: ID!
+
+  initiator: String! # Address who initialized the purchase transaction (can be admin or another address)
+  buyer: User!
+  paidAmount: BigInt!
+
+  timestamp: BigInt!
+  transaction: String!
+}
