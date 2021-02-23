@@ -4,10 +4,10 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ millionpieces/dev-mode --access-token [ACCESS_TOKEN]",
-    "create-local": "graph create --node http://localhost:8020/ millionpieces/dev-mode",
-    "remove-local": "graph remove --node http://localhost:8020/ millionpieces/dev-mode",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 millionpieces/dev-mode"
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ million-pieces/dev-mode --access-token [ACCESS_TOKEN]",
+    "create-local": "graph create --node http://localhost:8020/ million-pieces/dev-mode",
+    "remove-local": "graph remove --node http://localhost:8020/ million-pieces/dev-mode",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 million-pieces/dev-mode"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.19.0",
