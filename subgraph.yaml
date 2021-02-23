@@ -6,7 +6,7 @@ dataSources:
     name: Auction
     network: goerli
     source:
-      address: "0xBffE4d435AAE5Db77209A2684C8366878743382C"
+      address: "0xf0FE673787eaa77f0f0ED8E537Db48F9eB82bFA9"
       abi: Auction
     mapping:
       kind: ethereum/events
