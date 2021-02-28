@@ -13,7 +13,7 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - BigSegmentCreated
+        - SpecialSegmentCreated
         - NewBulkPurchase
         - NewSinglePurchase
         - OwnershipTransferred
@@ -21,8 +21,8 @@ dataSources:
         - name: Auction
           file: ./abis/Auction.json
       eventHandlers:
-        - event: BigSegmentCreated(address[],uint256[],uint256[])
-          handler: handleBigSegmentCreated
+        - event: SpecialSegmentCreated(address[],uint256[],uint256[])
+          handler: handleSpecialSegmentCreated
         - event: NewBulkPurchase(address,address[],uint256[],uint256)
           handler: handleNewBulkPurchase
         - event: NewSinglePurchase(address,address,uint256,uint256)

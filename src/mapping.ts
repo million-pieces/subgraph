@@ -1,7 +1,7 @@
 import { BigInt } from "@graphprotocol/graph-ts"
 import {
   Auction,
-  BigSegmentCreated,
+  SpecialSegmentCreated,
   NewBulkPurchase,
   NewSinglePurchase
 } from "../generated/Auction/Auction"
@@ -108,7 +108,7 @@ export function handleNewSinglePurchase(event: NewSinglePurchase): void {
   user.save()
 }
 
-export function handleBigSegmentCreated(event: BigSegmentCreated): void {
+export function handleSpecialSegmentCreated(event: SpecialSegmentCreated): void {
 
   let receivers = event.params.receivers
   let tokenIds = event.params.tokenIds
