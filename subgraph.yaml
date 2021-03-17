@@ -8,6 +8,7 @@ dataSources:
     source:
       address: "0xf0FE673787eaa77f0f0ED8E537Db48F9eB82bFA9"
       abi: Auction
+      startBlock: 4334965
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -27,6 +28,4 @@ dataSources:
           handler: handleNewBulkPurchase
         - event: NewSinglePurchase(address,address,uint256,uint256)
           handler: handleNewSinglePurchase
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
       file: ./src/mapping.ts
