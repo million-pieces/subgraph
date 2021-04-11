@@ -18,11 +18,7 @@ import * as Utils from './utils'
 
 
 export function handleNewSinglePurchase(event: NewSinglePurchase): void {
-
-  // -----------------
   // Purchase
-  // -----------------
-
   let purchase = getNewPurchaseEntity(
     event.params.tokenId,
     event.params.purchaser,
@@ -31,10 +27,7 @@ export function handleNewSinglePurchase(event: NewSinglePurchase): void {
     event
   )
 
-  // -----------------
   // Artwork
-  // -----------------
-
   let artwork = getArtwork(event.params.tokenId)
   let soldSegments = artwork.soldSegments
   let tokens = artwork.tokens
@@ -46,10 +39,8 @@ export function handleNewSinglePurchase(event: NewSinglePurchase): void {
   artwork.tokens = tokens
   artwork.save()
 
-  // -----------------
-  // User
-  // -----------------
 
+  // User
   let userAddress = event.params.receiver.toHex()
   let user = User.load(userAddress)
   if (user == null) {
@@ -60,17 +51,13 @@ export function handleNewSinglePurchase(event: NewSinglePurchase): void {
 }
 
 export function handleSpecialSegmentCreated(event: SpecialSegmentCreated): void {
-
   let receivers = event.params.receivers
   let tokenIds = event.params.tokenIds
   let amountsPaid = event.params.amountsPaid
   let segmentsCount = event.params.tokenIds.length
 
   for (let i = 0; i < segmentsCount; i++) {
-    // -----------------
     // Purchase
-    // -----------------
-
     let purchase = getNewPurchaseEntity(
       tokenIds[i],
       event.transaction.from,
@@ -79,20 +66,14 @@ export function handleSpecialSegmentCreated(event: SpecialSegmentCreated): void 
       event
     )
 
-    // -----------------
     // Token
-    // -----------------
-
     let tokenId = tokenIds[i]
     let receiver = receivers[i].toHex()
     let segment = getToken(tokenId)
     segment.isBigSegment = true // As this event happens for big segments only
     segment.save()
 
-    // -----------------
     // User
-    // -----------------
-
     let user = getUser(receiver)
   }
 }
@@ -101,13 +82,10 @@ export function handleNewBatchPurchase(event: NewBatchPurchase): void {
   let tokenIds = event.params.tokenIds
   let receivers = event.params.receivers
   let segmentsCount = event.params.tokenIds.length
-  let amountPerEachNft = event.params.ethSent.div(new BigInt(segmentsCount))
+  let amountPerEachNft = segmentsCount > 0 ? event.params.ethSent.div(new BigInt(segmentsCount)) : Utils.ZERO_INT
 
   for (let i = 0; i < segmentsCount; i++) {
-    // -----------------
     // Purchase
-    // -----------------
-
     let purchase = getNewPurchaseEntity(
       tokenIds[i],
       event.params.purchaser,
@@ -116,32 +94,27 @@ export function handleNewBatchPurchase(event: NewBatchPurchase): void {
       event
     )
 
-    // -----------------
     // Token
-    // -----------------
-
     let segment = getToken(tokenIds[i])
     segment.isBigSegment = true // As this event happens for big segments only
     segment.save()
 
-    // -----------------
     // User
-    // -----------------
-
     let user = getUser(receivers[i].toHex())
   }
 }
 
-//  ----------------------
-//  HELPERS
-//  ----------------------
+///  ----------------------
+///  HELPERS
+///  ----------------------
 
 function getNewPurchaseEntity(tokenId: BigInt, initiator: Address, buyer: Address, paidAmount: BigInt,event: ethereum.Event): Purchase {
-  let id = tokenId.toString() + "-" + event.transaction.hash.toHex()
+  let id = tokenId.toHex() + "-" + event.transaction.hash.toHex()
   let purchase = Purchase.load(id)
 
   if (purchase == null) {
     purchase = new Purchase(id)
+    purchase.token = tokenId.toHex()
     purchase.initiator = initiator.toHex()
     purchase.buyer = buyer.toHex()
     purchase.paidAmount = paidAmount
@@ -185,6 +158,7 @@ function getToken(tokenId: BigInt): Token {
   if (!token) {
     token = new Token(tokenId.toHex())
     token.identifier = tokenId
+    token.isBigSegment = false
 
     let erc721 = IERC721.bind(Address.fromString(Utils.NFT_ADDRESS))
     let try_tokenURI = erc721.try_tokenURI(tokenId)
@@ -196,13 +170,13 @@ function getToken(tokenId: BigInt): Token {
 }
 
 function getArtwork(tokenId: BigInt): Artwork {
-  let id = Utils.ZERO_INT
+  let artworkId = Utils.ZERO_INT
 
-  if (tokenId.ge(Utils.ARTWORK_SEGMENTS)) {
-    id = tokenId.div(Utils.ARTWORK_SEGMENTS)
-  }
+  // if (tokenId.ge(Utils.ARTWORK_SEGMENTS)) {
+  //   artworkId = tokenId.div(Utils.ARTWORK_SEGMENTS)
+  // }
 
-  let artwork = Artwork.load(id.toHex())
+  let artwork = Artwork.load(artworkId.toHex())
 
   return artwork as Artwork
 }

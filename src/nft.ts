@@ -59,6 +59,7 @@ function getToken(tokenId: BigInt): Token {
   if (!token) {
     token = new Token(tokenId.toHex())
     token.identifier = tokenId
+    token.isBigSegment = false
 
     let erc721 = IERC721.bind(Address.fromString(Utils.NFT_ADDRESS))
     let try_tokenURI = erc721.try_tokenURI(tokenId)

@@ -9,7 +9,7 @@ type Artwork @entity {
   soldSegments: [Token!]
   soldSegmentsCount: BigInt!
   tokens: [Token!]!
-  countries: [Country!]!
+  # countries: [Country!]
 }
 
 type Country @entity {
