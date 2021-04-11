@@ -1,25 +1,82 @@
+##  ----------------------
+##  ARTWORK
+##  ----------------------
+
+type Artwork @entity {
+  id: ID!
+
+  name: String!
+  soldSegments: [Token!]
+  soldSegmentsCount: BigInt!
+  tokens: [Token!]!
+  countries: [Country!]!
+}
+
+type Country @entity {
+  id: ID!
+
+  name: String!
+  availableSegments: BigInt!
+}
+
+##  ----------------------
+##  USER + SEGMENT
+##  ----------------------
+
 type User @entity {
   id: ID! # address of user
 
-  purchaseHistory: [Purchase!]!
-  currentSegments: [Segment!]
-}
-
-type Segment @entity {
-  id: ID! # nft unique ID
-
-  currentOwner: User!
-  isBigSegment: Boolean!
-  purchaseHistory: [Purchase!]
+  tokens: [Token!]! @derivedFrom(field: "owner")
+  transfersFrom: [Transfer!]! @derivedFrom(field: "from")
+  transfersTo: [Transfer!]! @derivedFrom(field: "to")
 }
 
 type Purchase @entity {
   id: ID!
 
-  initiator: String! # Address who initialized the purchase transaction (can be admin or another address)
+  token: Token!
   buyer: User!
+  initiator: String! # Address who initialized the purchase transaction (can be admin or another address)
   paidAmount: BigInt!
 
+  transaction: Transaction!
+}
+
+##  ----------------------
+##  NFT
+##  ----------------------
+
+interface Event {
+  id: ID!
+  transaction: Transaction!
   timestamp: BigInt!
-  transaction: String!
+}
+
+type Transaction @entity {
+  id: ID!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  value: BigInt!
+  gasUsed: BigInt!
+  gasPrice: BigInt!
+  events: [Event!]! @derivedFrom(field: "transaction")
+}
+
+type Transfer implements Event @entity {
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt!
+  token: Token!
+  from: User!
+  to: User!
+}
+
+type Token @entity {
+  id: ID!
+  identifier: BigInt! # Token ID
+
+  isBigSegment: Boolean!
+  owner: User!
+  uri: String
+  transfers: [Transfer!]! @derivedFrom(field: "token")
 }
