@@ -31,10 +31,3 @@ export function getArrItem<T>(arr: Array<T>, idx: i32): T {
 export function normalize(i: BigInt, decimals: number = 18): BigDecimal {
   return i.toBigDecimal().div(tenPow(decimals).toBigDecimal())
 }
-
-export let getCountries: { id: number, name: string }[] = [
-  { "id": 0, "name": "Available" },
-  { "id": 1, "name": "Ready" },
-  { "id": 2, "name": "Started" }
-  // TODO
-];
