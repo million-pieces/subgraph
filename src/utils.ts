@@ -31,3 +31,24 @@ export function getArrItem<T>(arr: Array<T>, idx: i32): T {
 export function normalize(i: BigInt, decimals: number = 18): BigDecimal {
   return i.toBigDecimal().div(tenPow(decimals).toBigDecimal())
 }
+
+export function getPieceReward(nextSegmentPlace: BigInt): BigDecimal {
+  // (150*0.999216459** 6751 + 50).toFixed()
+  let numericSegmentPlace = nextSegmentPlace.toString()
+  let formula = powDecimal(BigDecimal.fromString('150').times(BigDecimal.fromString('0.999216459')), parseInt(numericSegmentPlace)).plus(BigDecimal.fromString('50'))
+  return formula
+}
+
+export function powDecimal(amount: BigDecimal, count: number): BigDecimal {
+  let result = BigDecimal.fromString('1')
+
+  if (count === 0) return result
+  if (count === 1) return amount
+
+
+  for (let i = 0; i < count; i++) {
+    result = amount.times(result)
+  }
+
+  return result
+}

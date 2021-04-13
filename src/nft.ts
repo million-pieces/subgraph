@@ -30,10 +30,12 @@ export function handleNewWorldCreated(event: NewWorldCreated): void {
   let id = event.params.id
   let artwork = new Artwork(id.toHex())
   artwork.name = event.params.name
-  artwork.soldSegmentsCount = Utils.ZERO_INT
   artwork.soldSegments = Utils.EMPTY_STRING_ARRAY
-  // artwork.countries = Utils.EMPTY_STRING_ARRAY
+  artwork.soldSimpleSegmentsCount = Utils.ZERO_INT
+  artwork.soldSpecialSegmentsCount = Utils.ZERO_INT
   artwork.tokens = Utils.EMPTY_STRING_ARRAY
+  artwork.claimablePiece = Utils.getPieceReward(Utils.ONE_INT)
+  // artwork.countries = Utils.EMPTY_STRING_ARRAY
   artwork.save()
 }
 

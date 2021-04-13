@@ -7,8 +7,10 @@ type Artwork @entity {
 
   name: String!
   soldSegments: [Token!]
-  soldSegmentsCount: BigInt!
+  soldSimpleSegmentsCount: BigInt!
+  soldSpecialSegmentsCount: BigInt!
   tokens: [Token!]!
+  claimablePiece: BigDecimal!
   # countries: [Country!]
 }
 

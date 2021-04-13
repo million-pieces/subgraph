@@ -32,7 +32,8 @@ export function handleNewSinglePurchase(event: NewSinglePurchase): void {
   let soldSegments = artwork.soldSegments
   let tokens = artwork.tokens
 
-  artwork.soldSegmentsCount = artwork.soldSegmentsCount.plus(Utils.ONE_INT)
+  artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
+  artwork.claimablePiece = Utils.getPieceReward(artwork.soldSimpleSegmentsCount)
   soldSegments.push(event.params.tokenId.toHex())
   tokens.push(event.params.tokenId.toHex())
   artwork.soldSegments = soldSegments
@@ -78,7 +79,7 @@ export function handleSpecialSegmentCreated(event: SpecialSegmentCreated): void 
 
     // Artwork
     let artwork = getArtwork(tokenIds[i])
-    artwork.soldSegmentsCount = artwork.soldSegmentsCount.plus(Utils.ONE_INT)
+    artwork.soldSpecialSegmentsCount = artwork.soldSpecialSegmentsCount.plus(Utils.ONE_INT)
     let soldArtworks = artwork.soldSegments
     soldArtworks.push(segment.id)
     artwork.soldSegments = soldArtworks
@@ -112,7 +113,9 @@ export function handleNewBatchPurchase(event: NewBatchPurchase): void {
 
     // Artwork
     let artwork = getArtwork(tokenIds[i])
-    artwork.soldSegmentsCount = artwork.soldSegmentsCount.plus(Utils.ONE_INT)
+    artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
+    artwork.claimablePiece = Utils.getPieceReward(artwork.soldSimpleSegmentsCount)
+
     let soldArtworks = artwork.soldSegments
     soldArtworks.push(segment.id)
     artwork.soldSegments = soldArtworks
