@@ -6,9 +6,9 @@ dataSources:
     name: Auction
     network: goerli
     source:
-      address: "0xf0FE673787eaa77f0f0ED8E537Db48F9eB82bFA9"
+      address: "0x9310C92A49E1f49788c8Da3cF997d01e11E9Fd13"
       abi: Auction
-      startBlock: 4334965
+      startBlock: 4613030
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -33,9 +33,9 @@ dataSources:
     name: IERC721
     network: goerli
     source:
-      address: "0x58add7e59b348e3607837fad6f2a7fc8ca144685"
+      address: "0xCD209D496abb7bB264C921d60099605b4169EEDd"
       abi: IERC721
-      startBlock: 4334965
+      startBlock: 4613030
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -48,6 +48,6 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-        - event: NewWorldCreated(string,uint256)
+        - event: NewWorldCreated(uint256,string)
           handler: handleNewWorldCreated
       file: ./src/nft.ts

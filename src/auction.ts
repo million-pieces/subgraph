@@ -75,6 +75,14 @@ export function handleSpecialSegmentCreated(event: SpecialSegmentCreated): void 
 
     // User
     let user = getUser(receiver)
+
+    // Artwork
+    let artwork = getArtwork(tokenIds[i])
+    artwork.soldSegmentsCount = artwork.soldSegmentsCount.plus(Utils.ONE_INT)
+    let soldArtworks = artwork.soldSegments
+    soldArtworks.push(segment.id)
+    artwork.soldSegments = soldArtworks
+    artwork.save()
   }
 }
 
@@ -101,6 +109,14 @@ export function handleNewBatchPurchase(event: NewBatchPurchase): void {
 
     // User
     let user = getUser(receivers[i].toHex())
+
+    // Artwork
+    let artwork = getArtwork(tokenIds[i])
+    artwork.soldSegmentsCount = artwork.soldSegmentsCount.plus(Utils.ONE_INT)
+    let soldArtworks = artwork.soldSegments
+    soldArtworks.push(segment.id)
+    artwork.soldSegments = soldArtworks
+    artwork.save()
   }
 }
 

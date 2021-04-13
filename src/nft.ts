@@ -32,7 +32,7 @@ export function handleNewWorldCreated(event: NewWorldCreated): void {
   artwork.name = event.params.name
   artwork.soldSegmentsCount = Utils.ZERO_INT
   artwork.soldSegments = Utils.EMPTY_STRING_ARRAY
-  artwork.countries = Utils.EMPTY_STRING_ARRAY
+  // artwork.countries = Utils.EMPTY_STRING_ARRAY
   artwork.tokens = Utils.EMPTY_STRING_ARRAY
   artwork.save()
 }
