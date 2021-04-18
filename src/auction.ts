@@ -1,154 +1,61 @@
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts"
-import { IERC721 } from '../generated/IERC721/IERC721'
-import {
-  SpecialSegmentCreated,
-  NewBatchPurchase,
-  NewSinglePurchase
-} from "../generated/Auction/Auction"
+import { BigInt, ethereum } from "@graphprotocol/graph-ts"
 
+import { NewPurchase } from "../generated/Auction/Auction"
 import {
   User,
-  Token,
   Artwork,
   Purchase,
   Transaction
 } from "../generated/schema"
-
 import * as Utils from './utils'
 
 
-export function handleNewSinglePurchase(event: NewSinglePurchase): void {
-  // Purchase
-  let purchase = getNewPurchaseEntity(
-    event.params.tokenId,
-    event.params.purchaser,
-    event.params.receiver,
-    event.params.weiAmount,
-    event
-  )
-
-  // Artwork
+export function handleNewPurchase(event: NewPurchase): void {
   let artwork = getArtwork(event.params.tokenId)
-  let soldSegments = artwork.soldSegments
-  let tokens = artwork.tokens
+  let claimablePiece = Utils.getPieceReward(artwork.soldSimpleSegmentsCount)
 
-  artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
-  artwork.claimablePiece = Utils.getPieceReward(artwork.soldSimpleSegmentsCount)
-  soldSegments.push(event.params.tokenId.toHex())
-  tokens.push(event.params.tokenId.toHex())
-  artwork.soldSegments = soldSegments
-  artwork.tokens = tokens
-  artwork.save()
-
+  // Purchase
+  let tokenId = event.params.tokenId.toString()
+  let purchase = new Purchase(tokenId + "-" + event.transaction.hash.toHex())
+  purchase.token = tokenId
+  purchase.initiator = event.params.purchaser.toHex()
+  purchase.buyer = event.params.receiver.toHex()
+  purchase.paidAmount = event.params.weiAmount
+  purchase.transaction = getTransaction(event).id
+  purchase.claimedPiece = claimablePiece
+  purchase.save()
 
   // User
-  let userAddress = event.params.receiver.toHex()
-  let user = User.load(userAddress)
-  if (user == null) {
-    user = getUser(userAddress)
-  }
-
+  let user = getUser(event.params.receiver.toHex())
+  user.claimablePiece = user.claimablePiece.plus(claimablePiece)
   user.save()
-}
 
-export function handleSpecialSegmentCreated(event: SpecialSegmentCreated): void {
-  let receivers = event.params.receivers
-  let tokenIds = event.params.tokenIds
-  let amountsPaid = event.params.amountsPaid
-  let segmentsCount = event.params.tokenIds.length
+  // Artwork
+  artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
+  artwork.claimablePiece = Utils.getPieceReward(artwork.soldSimpleSegmentsCount)
 
-  for (let i = 0; i < segmentsCount; i++) {
-    // Purchase
-    let purchase = getNewPurchaseEntity(
-      tokenIds[i],
-      event.transaction.from,
-      receivers[i],
-      amountsPaid[i],
-      event
-    )
-
-    // Token
-    let tokenId = tokenIds[i]
-    let receiver = receivers[i].toHex()
-    let segment = getToken(tokenId)
-    segment.isBigSegment = true // As this event happens for big segments only
-    segment.save()
-
-    // User
-    let user = getUser(receiver)
-
-    // Artwork
-    let artwork = getArtwork(tokenIds[i])
-    artwork.soldSpecialSegmentsCount = artwork.soldSpecialSegmentsCount.plus(Utils.ONE_INT)
-    let soldArtworks = artwork.soldSegments
-    soldArtworks.push(segment.id)
-    artwork.soldSegments = soldArtworks
-    artwork.save()
-  }
-}
-
-export function handleNewBatchPurchase(event: NewBatchPurchase): void {
-  let tokenIds = event.params.tokenIds
-  let receivers = event.params.receivers
-  let segmentsCount = event.params.tokenIds.length
-  let amountPerEachNft = segmentsCount > 0 ? event.params.ethSent.div(new BigInt(segmentsCount)) : Utils.ZERO_INT
-
-  for (let i = 0; i < segmentsCount; i++) {
-    // Purchase
-    let purchase = getNewPurchaseEntity(
-      tokenIds[i],
-      event.params.purchaser,
-      receivers[i],
-      amountPerEachNft,
-      event
-    )
-
-    // Token
-    let segment = getToken(tokenIds[i])
-    segment.isBigSegment = true // As this event happens for big segments only
-    segment.save()
-
-    // User
-    let user = getUser(receivers[i].toHex())
-
-    // Artwork
-    let artwork = getArtwork(tokenIds[i])
-    artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
-    artwork.claimablePiece = Utils.getPieceReward(artwork.soldSimpleSegmentsCount)
-
-    let soldArtworks = artwork.soldSegments
-    soldArtworks.push(segment.id)
-    artwork.soldSegments = soldArtworks
-    artwork.save()
-  }
+  let soldSegments = artwork.soldSegments
+  soldSegments.push(tokenId)
+  artwork.soldSegments = soldSegments
+  let tokens = artwork.tokens
+  tokens.push(tokenId)
+  artwork.tokens = tokens
+  artwork.save()
 }
 
 ///  ----------------------
 ///  HELPERS
 ///  ----------------------
 
-function getNewPurchaseEntity(tokenId: BigInt, initiator: Address, buyer: Address, paidAmount: BigInt,event: ethereum.Event): Purchase {
-  let id = tokenId.toHex() + "-" + event.transaction.hash.toHex()
-  let purchase = Purchase.load(id)
-
-  if (purchase == null) {
-    purchase = new Purchase(id)
-    purchase.token = tokenId.toHex()
-    purchase.initiator = initiator.toHex()
-    purchase.buyer = buyer.toHex()
-    purchase.paidAmount = paidAmount
-    purchase.transaction = getTransaction(event).id
-    purchase.save()
-  }
-
-  return purchase as Purchase
-}
-
 function getUser(address: string): User {
   let user = User.load(address)
 
   if (user == null) {
     user = new User(address)
+    user.claimablePiece = Utils.ZERO_DEC
+    user.tokens = Utils.EMPTY_STRING_ARRAY
+    user.transfersFrom = Utils.EMPTY_STRING_ARRAY
+    user.transfersTo = Utils.EMPTY_STRING_ARRAY
     user.save()
   }
 
@@ -156,46 +63,30 @@ function getUser(address: string): User {
 }
 
 function getTransaction(event: ethereum.Event): Transaction {
-  let tx = Transaction.load(event.transaction.hash.toHex());
+  let tx = Transaction.load(event.transaction.hash.toHex())
 
   if (tx == null) {
-    tx = new Transaction(event.transaction.hash.toHex());
-    tx.timestamp = event.block.timestamp;
-    tx.blockNumber = event.block.number;
-    tx.value = event.transaction.value;
-    tx.gasUsed = event.transaction.gasUsed;
-    tx.gasPrice = event.transaction.gasPrice;
-    tx.save();
+    tx = new Transaction(event.transaction.hash.toHex())
+    tx.timestamp = event.block.timestamp
+    tx.blockNumber = event.block.number
+    tx.value = event.transaction.value
+    tx.gasUsed = event.transaction.gasUsed
+    tx.gasPrice = event.transaction.gasPrice
+    tx.save()
   }
 
-  return tx as Transaction;
-}
-
-function getToken(tokenId: BigInt): Token {
-  let token = Token.load(tokenId.toHex())
-
-  if (!token) {
-    token = new Token(tokenId.toHex())
-    token.identifier = tokenId
-    token.isBigSegment = false
-
-    let erc721 = IERC721.bind(Address.fromString(Utils.NFT_ADDRESS))
-    let try_tokenURI = erc721.try_tokenURI(tokenId)
-    token.uri = try_tokenURI.reverted ? '' : try_tokenURI.value
-    token.save()
-  }
-
-  return token as Token;
+  return tx as Transaction
 }
 
 function getArtwork(tokenId: BigInt): Artwork {
   let artworkId = Utils.ZERO_INT
 
+  // TODO for next Artworks
   // if (tokenId.ge(Utils.ARTWORK_SEGMENTS)) {
   //   artworkId = tokenId.div(Utils.ARTWORK_SEGMENTS)
   // }
 
-  let artwork = Artwork.load(artworkId.toHex())
+  let artwork = Artwork.load(artworkId.toString())
 
   return artwork as Artwork
 }

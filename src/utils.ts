@@ -35,8 +35,8 @@ export function normalize(i: BigInt, decimals: number = 18): BigDecimal {
 export function getPieceReward(nextSegmentPlace: BigInt): BigDecimal {
   // (150*0.999216459** 6751 + 50).toFixed()
   let numericSegmentPlace = nextSegmentPlace.toString()
-  let formula = BigDecimal.fromString('150').times(powDecimal(BigDecimal.fromString('0.999216459'), parseInt(numericSegmentPlace))).plus(BigDecimal.fromString('50'))
-  return formula.truncate(0) // TODO (should be rounded to higher side)
+  let amount = BigDecimal.fromString('150').times(powDecimal(BigDecimal.fromString('0.999216459'), parseInt(numericSegmentPlace))).plus(BigDecimal.fromString('50'))
+  return amount
 }
 
 export function powDecimal(amount: BigDecimal, count: number): BigDecimal {

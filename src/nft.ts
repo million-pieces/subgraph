@@ -1,4 +1,5 @@
 import { ethereum, BigInt, Address} from '@graphprotocol/graph-ts'
+
 import { User, Token, Transfer, Transaction, Artwork } from '../generated/schema'
 import { Transfer as TransferEvent, NewWorldCreated } from '../generated/IERC721/IERC721'
 import { IERC721 } from '../generated/IERC721/IERC721'
@@ -28,7 +29,7 @@ export function handleTransfer(event: TransferEvent): void {
 
 export function handleNewWorldCreated(event: NewWorldCreated): void {
   let id = event.params.id
-  let artwork = new Artwork(id.toHex())
+  let artwork = new Artwork(id.toString())
   artwork.name = event.params.name
   artwork.soldSegments = Utils.EMPTY_STRING_ARRAY
   artwork.soldSimpleSegmentsCount = Utils.ZERO_INT
