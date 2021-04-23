@@ -57,10 +57,10 @@ function getTransaction(event: ethereum.Event): Transaction {
 }
 
 function getToken(tokenId: BigInt): Token {
-  let token = Token.load(tokenId.toHex())
+  let token = Token.load(tokenId.toString())
 
   if (!token) {
-    token = new Token(tokenId.toHex())
+    token = new Token(tokenId.toString())
     token.identifier = tokenId
     token.isBigSegment = false
 

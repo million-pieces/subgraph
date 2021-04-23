@@ -34,12 +34,15 @@ export function handleNewPurchase(event: NewPurchase): void {
   artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
   artwork.claimablePiece = Utils.getPieceReward(artwork.soldSimpleSegmentsCount)
 
-  let soldSegments = artwork.soldSegments
-  soldSegments.push(tokenId)
-  artwork.soldSegments = soldSegments
   let tokens = artwork.tokens
+  let soldSegments = artwork.soldSegments
+
   tokens.push(tokenId)
+  soldSegments.push(tokenId)
+
   artwork.tokens = tokens
+  artwork.soldSegments = soldSegments
+
   artwork.save()
 }
 

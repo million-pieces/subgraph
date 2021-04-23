@@ -7,19 +7,20 @@ type Artwork @entity {
 
   name: String!
   soldSegments: [Token!]
+  tokens: [Token!]
+
   soldSimpleSegmentsCount: BigInt!
   soldSpecialSegmentsCount: BigInt!
-  tokens: [Token!]!
   claimablePiece: BigDecimal!
   # countries: [Country!]
 }
 
-type Country @entity {
-  id: ID!
+# type Country @entity {
+#   id: ID!
 
-  name: String!
-  availableSegments: BigInt!
-}
+#   name: String!
+#   availableSegments: BigInt!
+# }
 
 ##  ----------------------
 ##  USER + SEGMENT

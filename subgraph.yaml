@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0xD3027Cc22bFAafAeC8Ff8f8D1f846aB729283840"
       abi: Auction
-      startBlock: 4637736
+      startBlock: 4637730
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
