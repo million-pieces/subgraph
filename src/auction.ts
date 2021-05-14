@@ -3,6 +3,7 @@ import { BigInt, ethereum } from "@graphprotocol/graph-ts"
 import { NewPurchase } from "../generated/Auction/Auction"
 import {
   User,
+  Country,
   Artwork,
   Purchase,
   Transaction
@@ -33,6 +34,12 @@ export function handleNewPurchase(event: NewPurchase): void {
   // Artwork
   artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
   artwork.claimablePiece = Utils.getPieceReward(artwork.soldSimpleSegmentsCount)
+
+  // Country
+  let countryName = Utils.getCountryByTokenId(parseInt(event.params.tokenId.toString()))
+  let countryEntity = Country.load(countryName + "-" + artwork.name)
+  countryEntity.availableSegments = countryEntity.availableSegments.minus(Utils.ONE_INT)
+  countryEntity.save()
 
   let tokens = artwork.tokens
   let soldSegments = artwork.soldSegments

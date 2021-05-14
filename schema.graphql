@@ -12,15 +12,15 @@ type Artwork @entity {
   soldSimpleSegmentsCount: BigInt!
   soldSpecialSegmentsCount: BigInt!
   claimablePiece: BigDecimal!
-  # countries: [Country!]
+  countries: [Country!]
 }
 
-# type Country @entity {
-#   id: ID!
+type Country @entity {
+  id: ID!
 
-#   name: String!
-#   availableSegments: BigInt!
-# }
+  name: String!
+  availableSegments: BigInt!
+}
 
 ##  ----------------------
 ##  USER + SEGMENT

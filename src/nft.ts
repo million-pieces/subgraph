@@ -36,7 +36,7 @@ export function handleNewWorldCreated(event: NewWorldCreated): void {
   artwork.soldSpecialSegmentsCount = Utils.ZERO_INT
   artwork.tokens = Utils.EMPTY_STRING_ARRAY
   artwork.claimablePiece = Utils.getPieceReward(Utils.ONE_INT)
-  // artwork.countries = Utils.EMPTY_STRING_ARRAY
+  artwork.countries = Utils.getInitialCountries(event.params.name.toString());
   artwork.save()
 }
 

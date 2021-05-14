@@ -1,4 +1,6 @@
 import { BigInt, BigDecimal } from '@graphprotocol/graph-ts'
+import { Country } from '../generated/schema'
+import { COUNTRIES } from "./countryList"
 
 export let ZERO_INT = BigInt.fromI32(0)
 export let ZERO_DEC = BigDecimal.fromString('0')
@@ -51,4 +53,38 @@ export function powDecimal(amount: BigDecimal, count: number): BigDecimal {
   }
 
   return result
+}
+
+export function getInitialCountries(artworkName: String): string[] {
+  let artworkCountries = EMPTY_STRING_ARRAY;
+
+  for (let i = 0; i < COUNTRIES.length; i++) {
+    let country = COUNTRIES[i];
+    let name = country.name;
+    let segmentsCount = country.segments.length;
+
+    let entity = new Country(name + "-" + artworkName);
+    entity.name = name;
+    entity.availableSegments = BigInt.fromI32(segmentsCount);
+    entity.save();
+
+    artworkCountries.push(entity.id);
+  }
+
+  return artworkCountries;
+}
+
+export function getCountryByTokenId(id: number): string {
+  let country = '';
+
+  for (let i = 0; i < COUNTRIES.length; i++) {
+    let countryData = COUNTRIES[i];
+    let segments = countryData.segments;
+    if (segments.includes(id)) {
+      country = countryData.name;
+      break;
+    }
+  }
+
+  return country;
 }
