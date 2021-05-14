@@ -1,5 +1,6 @@
-import { BigInt, BigDecimal } from '@graphprotocol/graph-ts'
-import { Country } from '../generated/schema'
+import { ethereum, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
+import { Country, Transaction, Token, User, Artwork } from '../generated/schema'
+import { IERC721 } from '../generated/IERC721/IERC721'
 import { COUNTRIES } from "./countryList"
 
 export let ZERO_INT = BigInt.fromI32(0)
@@ -63,6 +64,7 @@ export function getInitialCountries(artworkName: String): string[] {
     let name = country.name;
     let segmentsCount = country.segments.length;
 
+    // Create country entity
     let entity = new Country(name + "-" + artworkName);
     entity.name = name;
     entity.availableSegments = BigInt.fromI32(segmentsCount);
@@ -87,4 +89,63 @@ export function getCountryByTokenId(id: number): string {
   }
 
   return country;
+}
+
+// Entities
+
+
+export function getTransaction(event: ethereum.Event): Transaction {
+  let tx = new Transaction(event.transaction.hash.toHex());
+  tx.timestamp = event.block.timestamp;
+  tx.blockNumber = event.block.number;
+  tx.value = event.transaction.value;
+  tx.gasUsed = event.transaction.gasUsed;
+  tx.gasPrice = event.transaction.gasPrice;
+  tx.save();
+
+  return tx;
+}
+
+export function getToken(tokenId: BigInt): Token {
+  let token = Token.load(tokenId.toString())
+
+  if (!token) {
+    token = new Token(tokenId.toString())
+    token.identifier = tokenId
+    token.isBigSegment = false
+
+    let erc721 = IERC721.bind(Address.fromString(NFT_ADDRESS))
+    let try_tokenURI = erc721.try_tokenURI(tokenId)
+    token.uri = try_tokenURI.reverted ? '' : try_tokenURI.value
+  }
+
+  return token as Token;
+}
+
+export function getUser(address: string): User {
+  let user = User.load(address)
+
+  if (user == null) {
+    user = new User(address)
+    user.claimablePiece = ZERO_DEC
+    user.tokens = EMPTY_STRING_ARRAY
+    user.transfersFrom = EMPTY_STRING_ARRAY
+    user.transfersTo = EMPTY_STRING_ARRAY
+    user.save()
+  }
+
+  return user as User
+}
+
+export function getArtwork(tokenId: BigInt): Artwork {
+  let artworkId = ZERO_INT
+
+  // TODO for next Artworks
+  // if (tokenId.ge(Utils.ARTWORK_SEGMENTS)) {
+  //   artworkId = tokenId.div(Utils.ARTWORK_SEGMENTS)
+  // }
+
+  let artwork = Artwork.load(artworkId.toString())
+
+  return artwork as Artwork
 }
