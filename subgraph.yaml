@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Auction
-    network: goerli
+    network: rinkeby
     source:
-      address: "0xD3027Cc22bFAafAeC8Ff8f8D1f846aB729283840"
+      address: "0x989Cb159E8e284580A05289022DE604a5DDe5ec1"
       abi: Auction
-      startBlock: 4637730
+      startBlock: 8634230
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -24,11 +24,11 @@ dataSources:
       file: ./src/auction.ts
   - kind: ethereum/contract
     name: IERC721
-    network: goerli
+    network: rinkeby
     source:
-      address: "0x3Dfa71c273BC9Af14d8D90fe9ABd3791aAf93d24"
+      address: "0x89FF337026401f47DD4BbF23b53F3467C12a4e3b"
       abi: IERC721
-      startBlock: 4637735
+      startBlock: 8634230
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -41,6 +41,6 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-        - event: NewWorldCreated(uint256,string)
-          handler: handleNewWorldCreated
+        - event: NewArtworkCreated(uint256,string)
+          handler: handleNewArtworkCreated
       file: ./src/nft.ts

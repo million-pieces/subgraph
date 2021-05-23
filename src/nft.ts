@@ -1,5 +1,5 @@
 import { User, Transfer, Artwork } from '../generated/schema'
-import { Transfer as TransferEvent, NewWorldCreated } from '../generated/IERC721/IERC721'
+import { Transfer as TransferEvent, NewArtworkCreated } from '../generated/IERC721/IERC721'
 import * as Utils from './utils'
 
 export function handleTransfer(event: TransferEvent): void {
@@ -24,7 +24,7 @@ export function handleTransfer(event: TransferEvent): void {
   ev.save()
 }
 
-export function handleNewWorldCreated(event: NewWorldCreated): void {
+export function handleNewArtworkCreated(event: NewArtworkCreated): void {
   let id = event.params.id
   let artwork = new Artwork(id.toString())
   artwork.name = event.params.name

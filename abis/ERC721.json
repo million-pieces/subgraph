@@ -89,7 +89,7 @@
         "type": "string"
       }
     ],
-    "name": "NewWorldCreated",
+    "name": "NewArtworkCreated",
     "type": "event"
   },
   {
