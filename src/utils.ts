@@ -11,7 +11,7 @@ export let ONE_DEC = BigDecimal.fromString('1')
 export let PRECISION = new BigDecimal(tenPow(18))
 export let ETH_ADDR = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 export let ZERO_ADDR = '0x0000000000000000000000000000000000000000'
-export let NFT_ADDRESS = '0x89ff337026401f47dd4bbf23b53f3467c12a4e3b'
+export let NFT_ADDRESS = '0x0A6e9A7652416F02d5a8c1beF1E376b24a2cC01A'
 export let ARTWORK_SEGMENTS = new BigInt(10000)
 
 export function tenPow(exponent: number): BigInt {
