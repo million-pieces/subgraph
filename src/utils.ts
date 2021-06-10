@@ -67,6 +67,7 @@ export function getInitialCountries(artworkName: String): string[] {
     // Create country entity
     let entity = new Country(name + "-" + artworkName);
     entity.name = name;
+    entity.totalSegments = BigInt.fromI32(segmentsCount);
     entity.availableSegments = BigInt.fromI32(segmentsCount);
     entity.save();
 

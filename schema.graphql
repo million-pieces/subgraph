@@ -20,6 +20,7 @@ type Country @entity {
 
   name: String!
   availableSegments: BigInt!
+  totalSegments: BigInt!
 }
 
 ##  ----------------------
