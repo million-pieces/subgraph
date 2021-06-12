@@ -11,7 +11,7 @@ export let ONE_DEC = BigDecimal.fromString('1')
 export let PRECISION = new BigDecimal(tenPow(18))
 export let ETH_ADDR = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 export let ZERO_ADDR = '0x0000000000000000000000000000000000000000'
-export let NFT_ADDRESS = '0x0A6e9A7652416F02d5a8c1beF1E376b24a2cC01A'
+export let NFT_ADDRESS = '0x32A984F84E056b6E553cD0C3729fDDd2d897769c'
 export let ARTWORK_SEGMENTS = new BigInt(10000)
 
 export function tenPow(exponent: number): BigInt {
@@ -129,10 +129,6 @@ export function getUser(address: string): User {
   if (user == null) {
     user = new User(address)
     user.claimablePiece = ZERO_DEC
-    user.tokens = EMPTY_STRING_ARRAY
-    user.transfersFrom = EMPTY_STRING_ARRAY
-    user.transfersTo = EMPTY_STRING_ARRAY
-    user.save()
   }
 
   return user as User

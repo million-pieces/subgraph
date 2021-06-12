@@ -1,4 +1,4 @@
-import { User, Transfer, Artwork } from '../generated/schema'
+import { Transfer, Artwork } from '../generated/schema'
 import { Transfer as TransferEvent, NewArtworkCreated } from '../generated/IERC721/IERC721'
 import * as Utils from './utils'
 
@@ -9,9 +9,6 @@ export function handleTransfer(event: TransferEvent): void {
 
   token.owner = to.id
 
-  token.save()
-  from.save()
-  to.save()
 
   let transaction = Utils.getTransaction(event);
   let eventId = event.block.number.toString().concat('-').concat(event.logIndex.toString());
@@ -22,6 +19,10 @@ export function handleTransfer(event: TransferEvent): void {
   ev.from = from.id
   ev.to = to.id
   ev.save()
+
+  token.save()
+  from.save()
+  to.save()
 }
 
 export function handleNewArtworkCreated(event: NewArtworkCreated): void {

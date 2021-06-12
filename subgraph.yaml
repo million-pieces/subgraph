@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Auction
-    network: rinkeby
+    network: mainnet
     source:
-      address: "0x454C5873D7EccdF9320FA926BBd1bfa6bC704eAA"
+      address: "0xFd39A556F06cA1Ab3f28A2C25A01a865064b92C6"
       abi: Auction
-      startBlock: 8634550
+      startBlock: 12548932
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -24,11 +24,11 @@ dataSources:
       file: ./src/auction.ts
   - kind: ethereum/contract
     name: IERC721
-    network: rinkeby
+    network: mainnet
     source:
-      address: "0x0A6e9A7652416F02d5a8c1beF1E376b24a2cC01A"
+      address: "0x32A984F84E056b6E553cD0C3729fDDd2d897769c"
       abi: IERC721
-      startBlock: 8634550
+      startBlock: 12548902
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
