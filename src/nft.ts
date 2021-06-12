@@ -1,14 +1,12 @@
+import { Address } from '@graphprotocol/graph-ts'
 import { Transfer, Artwork } from '../generated/schema'
-import { Transfer as TransferEvent, NewArtworkCreated } from '../generated/IERC721/IERC721'
+import { IERC721, Transfer as TransferEvent, NewArtworkCreated } from '../generated/IERC721/IERC721'
 import * as Utils from './utils'
 
 export function handleTransfer(event: TransferEvent): void {
   let token = Utils.getToken(event.params.tokenId)
   let from = Utils.getUser(event.params.from.toHex())
   let to = Utils.getUser(event.params.to.toHex())
-
-  token.owner = to.id
-
 
   let transaction = Utils.getTransaction(event);
   let eventId = event.block.number.toString().concat('-').concat(event.logIndex.toString());
@@ -19,6 +17,25 @@ export function handleTransfer(event: TransferEvent): void {
   ev.from = from.id
   ev.to = to.id
   ev.save()
+
+  // Cases when admin minted tokens for giveaway
+  if (from.id == Utils.ZERO_ADDR && transaction.value.equals(Utils.ZERO_INT)) {
+    let artwork = Utils.getArtwork(event.params.tokenId)
+
+    let erc721 = IERC721.bind(Address.fromString(Utils.NFT_ADDRESS))
+    let try_isSpecialSegment = erc721.try_isSpecialSegment(event.params.tokenId)
+    let isSpecial = try_isSpecialSegment.reverted ? false : try_isSpecialSegment.value
+
+    if (isSpecial) {
+      artwork.soldSpecialSegmentsCount = artwork.soldSpecialSegmentsCount.plus(Utils.ONE_INT)
+    } else {
+      artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
+    }
+
+    artwork.save()
+  }
+
+  token.owner = to.id
 
   token.save()
   from.save()
