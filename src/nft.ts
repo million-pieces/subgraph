@@ -32,6 +32,10 @@ export function handleTransfer(event: TransferEvent): void {
       artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
     }
 
+    let tokens = artwork.tokens
+    tokens.push(event.params.tokenId.toString())
+    artwork.tokens = tokens
+
     artwork.save()
   }
 
