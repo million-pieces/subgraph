@@ -11,7 +11,8 @@ type Artwork @entity {
 
   soldSimpleSegmentsCount: BigInt!
   soldSpecialSegmentsCount: BigInt!
-  claimablePiece: BigDecimal!
+  soldSegmentsCount: BigInt! # Minted for ETH, not for giveaway like soldSimpleSegmentsCount
+  claimablePiece: BigInt!
   countries: [Country!]
 }
 
@@ -30,7 +31,7 @@ type Country @entity {
 type User @entity {
   id: ID! # address of user
 
-  claimablePiece: BigDecimal
+  claimablePiece: BigInt!
   tokens: [Token!]! @derivedFrom(field: "owner")
   transfersFrom: [Transfer!]! @derivedFrom(field: "from")
   transfersTo: [Transfer!]! @derivedFrom(field: "to")
@@ -43,7 +44,7 @@ type Purchase @entity {
   buyer: User!
   initiator: String! # Address who initialized the purchase transaction (can be admin or another address)
   paidAmount: BigInt!
-  claimedPiece: BigDecimal!
+  claimedPiece: BigInt!
 
   transaction: Transaction!
 }
@@ -80,6 +81,8 @@ type Transfer implements Event @entity {
 type Token @entity {
   id: ID!
   identifier: BigInt! # Token ID
+  claimablePiece: BigInt! # PIECE amount which token holds
+  saleOrder: BigInt!
 
   isBigSegment: Boolean!
   owner: User!

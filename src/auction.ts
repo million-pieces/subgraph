@@ -8,7 +8,13 @@ import * as Utils from './utils'
 
 export function handleNewPurchase(event: NewPurchase): void {
   let artwork = Utils.getArtwork(event.params.tokenId)
-  let claimablePiece = Utils.getPieceReward(artwork.soldSimpleSegmentsCount)
+  let claimablePiece = Utils.getPieceReward(artwork.soldSegmentsCount)
+
+  // Token
+  let token = Utils.getToken(event.params.tokenId)
+  token.claimablePiece = claimablePiece
+  token.saleOrder = artwork.soldSegmentsCount
+  token.save()
 
   // Purchase
   let tokenId = event.params.tokenId.toString()
@@ -27,8 +33,9 @@ export function handleNewPurchase(event: NewPurchase): void {
   user.save()
 
   // Artwork
+  artwork.soldSegmentsCount = artwork.soldSegmentsCount.plus(Utils.ONE_INT)
   artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
-  artwork.claimablePiece = Utils.getPieceReward(artwork.soldSimpleSegmentsCount)
+  artwork.claimablePiece = Utils.getPieceReward(artwork.soldSegmentsCount)
 
   // Country
   let countryName = Utils.getCountryByTokenId(parseInt(event.params.tokenId.toString()))

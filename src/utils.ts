@@ -35,11 +35,21 @@ export function normalize(i: BigInt, decimals: number = 18): BigDecimal {
   return i.toBigDecimal().div(tenPow(decimals).toBigDecimal())
 }
 
-export function getPieceReward(nextSegmentPlace: BigInt): BigDecimal {
-  // (150*0.999216459** 6751 + 50).toFixed()
-  let numericSegmentPlace = nextSegmentPlace.toString()
-  let amount = BigDecimal.fromString('150').times(powDecimal(BigDecimal.fromString('0.999216459'), parseInt(numericSegmentPlace))).plus(BigDecimal.fromString('50'))
-  return amount
+export function getPieceReward(currentSegmentPlace: BigInt): BigInt {
+  // (150*0.999487762** 6751 + 50).toFixed()
+  if (currentSegmentPlace.equals(ZERO_INT)) {
+    return BigInt.fromString('200')
+  }
+
+  let amount = BigDecimal.fromString('150').times(powDecimal(BigDecimal.fromString('0.999487762'), parseInt(currentSegmentPlace.toString()))).plus(BigDecimal.fromString('50'))
+  let rounded = BigInt.fromString(amount.toString().split('.')[0])
+
+  // round to closer side (eg: 149.51 => 150 and 149.49 => 149)
+  if (BigDecimal.fromString(rounded.toString()).plus(BigDecimal.fromString('0.5')).gt(amount)) {
+    return rounded
+  } else {
+    return rounded.plus(ONE_INT)
+  }
 }
 
 export function powDecimal(amount: BigDecimal, count: number): BigDecimal {
@@ -114,6 +124,8 @@ export function getToken(tokenId: BigInt): Token {
     token = new Token(tokenId.toString())
     token.identifier = tokenId
     token.isBigSegment = false
+    token.claimablePiece = ZERO_INT
+    token.saleOrder = ZERO_INT
 
     let erc721 = IERC721.bind(Address.fromString(NFT_ADDRESS))
     let try_tokenURI = erc721.try_tokenURI(tokenId)
@@ -128,7 +140,7 @@ export function getUser(address: string): User {
 
   if (user == null) {
     user = new User(address)
-    user.claimablePiece = ZERO_DEC
+    user.claimablePiece = ZERO_INT
   }
 
   return user as User
