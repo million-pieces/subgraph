@@ -39,6 +39,12 @@ export function handleTransfer(event: TransferEvent): void {
     artwork.save()
   }
 
+  // Update claimable PIECE if user transferred tokens
+  if (from.id != Utils.ZERO_ADDR) {
+    from.claimablePiece = from.claimablePiece.minus(token.claimablePiece)
+    to.claimablePiece = to.claimablePiece.plus(token.claimablePiece)
+  }
+
   token.owner = to.id
 
   token.save()
