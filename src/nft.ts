@@ -1,5 +1,5 @@
 import { Address } from '@graphprotocol/graph-ts'
-import { Transfer, Artwork } from '../generated/schema'
+import { Transfer, Artwork, Country } from '../generated/schema'
 import { IERC721, Transfer as TransferEvent, NewArtworkCreated } from '../generated/IERC721/IERC721'
 import * as Utils from './utils'
 
@@ -37,6 +37,12 @@ export function handleTransfer(event: TransferEvent): void {
     artwork.tokens = tokens
 
     artwork.save()
+
+    // Country
+    let countryName = Utils.getCountryByTokenId(parseInt(event.params.tokenId.toString()))
+    let countryEntity = Country.load(countryName + "-" + artwork.name)
+    countryEntity.availableSegments = countryEntity.availableSegments.minus(Utils.ONE_INT)
+    countryEntity.save()
   }
 
   // Update claimable PIECE if user transferred tokens
