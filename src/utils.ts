@@ -11,7 +11,7 @@ export let ONE_DEC = BigDecimal.fromString('1')
 export let PRECISION = new BigDecimal(tenPow(18))
 export let ETH_ADDR = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 export let ZERO_ADDR = '0x0000000000000000000000000000000000000000'
-export let NFT_ADDRESS = '0x32A984F84E056b6E553cD0C3729fDDd2d897769c'
+export let NFT_ADDRESS = Address.fromString('0x32A984F84E056b6E553cD0C3729fDDd2d897769c')
 export let ARTWORK_SEGMENTS = new BigInt(10000)
 
 export function tenPow(exponent: number): BigInt {
@@ -35,12 +35,17 @@ export function normalize(i: BigInt, decimals: number = 18): BigDecimal {
   return i.toBigDecimal().div(tenPow(decimals).toBigDecimal())
 }
 
-export function getPieceReward(currentSegmentPlace: BigInt): BigInt {
-  // (150*0.999487762** 6751 + 50).toFixed()
+export function getPieceReward(currentSegmentPlace: BigInt, tokenId: BigInt): BigInt {
+  // Big cities have 500
+  if (isSpecial(tokenId)) {
+    return BigInt.fromString('500')
+  }
+
   if (currentSegmentPlace.equals(ZERO_INT)) {
     return BigInt.fromString('200')
   }
 
+  // eg (150 * 0.999487762**6751 + 50).toFixed()
   let amount = BigDecimal.fromString('150').times(powDecimal(BigDecimal.fromString('0.999487762'), parseInt(currentSegmentPlace.toString()))).plus(BigDecimal.fromString('50'))
   let rounded = BigInt.fromString(amount.toString().split('.')[0])
 
@@ -87,6 +92,12 @@ export function getInitialCountries(artworkName: String): string[] {
   return artworkCountries;
 }
 
+export function isSpecial(id: BigInt): boolean {
+  let try_isSpecialSegment = getNftInstance().try_isSpecialSegment(id)
+  let isSpecial = try_isSpecialSegment.reverted ? false : try_isSpecialSegment.value
+  return isSpecial
+}
+
 export function getCountryByTokenId(id: number): string {
   let country = '';
 
@@ -127,8 +138,7 @@ export function getToken(tokenId: BigInt): Token {
     token.claimablePiece = ZERO_INT
     token.saleOrder = ZERO_INT
 
-    let erc721 = IERC721.bind(Address.fromString(NFT_ADDRESS))
-    let try_tokenURI = erc721.try_tokenURI(tokenId)
+    let try_tokenURI = getNftInstance().try_tokenURI(tokenId)
     token.uri = try_tokenURI.reverted ? '' : try_tokenURI.value
   }
 
@@ -144,6 +154,10 @@ export function getUser(address: string): User {
   }
 
   return user as User
+}
+
+export function getNftInstance(): IERC721 {
+  return IERC721.bind(NFT_ADDRESS)
 }
 
 export function getArtwork(tokenId: BigInt): Artwork {

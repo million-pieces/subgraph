@@ -18,6 +18,8 @@ dataSources:
       abis:
         - name: Auction
           file: ./abis/Auction.json
+        - name: IERC721
+          file: ./abis/IERC721.json
       eventHandlers:
         - event: NewPurchase(address,address,uint256,uint256)
           handler: handleNewPurchase
@@ -28,7 +30,7 @@ dataSources:
     source:
       address: "0x32A984F84E056b6E553cD0C3729fDDd2d897769c"
       abi: IERC721
-      startBlock: 12548902
+      startBlock: 12548900
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -37,7 +39,7 @@ dataSources:
         - Token
       abis:
         - name: IERC721
-          file: ./abis/ERC721.json
+          file: ./abis/IERC721.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer

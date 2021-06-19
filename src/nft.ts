@@ -1,6 +1,5 @@
-import { Address } from '@graphprotocol/graph-ts'
 import { Transfer, Artwork, Country } from '../generated/schema'
-import { IERC721, Transfer as TransferEvent, NewArtworkCreated } from '../generated/IERC721/IERC721'
+import { Transfer as TransferEvent, NewArtworkCreated } from '../generated/IERC721/IERC721'
 import * as Utils from './utils'
 
 export function handleTransfer(event: TransferEvent): void {
@@ -22,12 +21,13 @@ export function handleTransfer(event: TransferEvent): void {
   if (from.id == Utils.ZERO_ADDR && transaction.value.equals(Utils.ZERO_INT)) {
     let artwork = Utils.getArtwork(event.params.tokenId)
 
-    let erc721 = IERC721.bind(Address.fromString(Utils.NFT_ADDRESS))
-    let try_isSpecialSegment = erc721.try_isSpecialSegment(event.params.tokenId)
-    let isSpecial = try_isSpecialSegment.reverted ? false : try_isSpecialSegment.value
-
+    let isSpecial = Utils.isSpecial(event.params.tokenId)
     if (isSpecial) {
       artwork.soldSpecialSegmentsCount = artwork.soldSpecialSegmentsCount.plus(Utils.ONE_INT)
+
+      // Add PIECE to Special tokens
+      let claimablePiece = Utils.getPieceReward(artwork.soldSegmentsCount, event.params.tokenId)
+      token.claimablePiece = claimablePiece;
     } else {
       artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
     }
@@ -67,7 +67,7 @@ export function handleNewArtworkCreated(event: NewArtworkCreated): void {
   artwork.soldSpecialSegmentsCount = Utils.ZERO_INT
   artwork.soldSegmentsCount = Utils.ZERO_INT
   artwork.tokens = Utils.EMPTY_STRING_ARRAY
-  artwork.claimablePiece = Utils.getPieceReward(Utils.ZERO_INT)
+  artwork.claimablePiece = Utils.getPieceReward(Utils.ZERO_INT, Utils.ZERO_INT)
   artwork.countries = Utils.getInitialCountries(event.params.name.toString());
   artwork.save()
 }
