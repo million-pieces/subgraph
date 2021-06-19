@@ -37,7 +37,7 @@ export function normalize(i: BigInt, decimals: number = 18): BigDecimal {
 
 export function getPieceReward(currentSegmentPlace: BigInt, tokenId: BigInt): BigInt {
   // Big cities have 500
-  if (isSpecial(tokenId)) {
+  if (tokenId.notEqual(BigInt.fromString('0')) && isSpecial(tokenId)) {
     return BigInt.fromString('500')
   }
 
