@@ -39,7 +39,7 @@ export function handleNewPurchase(event: NewPurchase): void {
 
   // Country
   let countryName = Utils.getCountryByTokenId(parseInt(event.params.tokenId.toString()))
-  let countryEntity = Country.load(countryName + "-" + artwork.name)
+  let countryEntity = Utils.getCountry(countryName, artwork.name)
   countryEntity.availableSegments = countryEntity.availableSegments.minus(Utils.ONE_INT)
   countryEntity.save()
 

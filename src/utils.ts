@@ -1,7 +1,7 @@
 import { ethereum, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 import { Country, Transaction, Token, User, Artwork } from '../generated/schema'
 import { IERC721 } from '../generated/IERC721/IERC721'
-import { COUNTRIES } from "./countryList"
+import { SEGMENTS } from "./segmentsList"
 
 export let ZERO_INT = BigInt.fromI32(0)
 export let ZERO_DEC = BigDecimal.fromString('0')
@@ -72,24 +72,24 @@ export function powDecimal(amount: BigDecimal, count: number): BigDecimal {
 }
 
 export function getInitialCountries(artworkName: String): string[] {
-  let artworkCountries = EMPTY_STRING_ARRAY;
+  let artworkCountries = EMPTY_STRING_ARRAY
 
-  for (let i = 0; i < COUNTRIES.length; i++) {
-    let country = COUNTRIES[i];
-    let name = country.name;
-    let segmentsCount = country.segments.length;
+  for (let i = 0; i < SEGMENTS.length; i++) {
+    let segment = SEGMENTS[i]
 
-    // Create country entity
-    let entity = new Country(name + "-" + artworkName);
-    entity.name = name;
-    entity.totalSegments = BigInt.fromI32(segmentsCount);
-    entity.availableSegments = BigInt.fromI32(segmentsCount);
-    entity.save();
+    // Init country entity
+    let entity = getCountry(segment.country, artworkName)
+    entity.totalSegments = entity.totalSegments.plus(ONE_INT)
+    entity.availableSegments = entity.availableSegments.plus(ONE_INT)
+    entity.save()
 
-    artworkCountries.push(entity.id);
+    // Push segment country if not exists
+    if (artworkCountries.indexOf(entity.id) === -1) {
+      artworkCountries.push(entity.id)
+    }
   }
 
-  return artworkCountries;
+  return artworkCountries
 }
 
 export function isSpecial(id: BigInt): boolean {
@@ -99,61 +99,74 @@ export function isSpecial(id: BigInt): boolean {
 }
 
 export function getCountryByTokenId(id: number): string {
-  let country = '';
+  let country = ''
 
-  for (let i = 0; i < COUNTRIES.length; i++) {
-    let countryData = COUNTRIES[i];
-    let segments = countryData.segments;
-    if (segments.includes(id)) {
-      country = countryData.name;
-      break;
+  for (let i = 0; i < SEGMENTS.length; i++) {
+    let segment = SEGMENTS[i]
+    if (segment.id === id) {
+      country = segment.country
+      break
     }
   }
 
-  return country;
+  return country
 }
 
 // Entities
 
 
 export function getTransaction(event: ethereum.Event): Transaction {
-  let tx = new Transaction(event.transaction.hash.toHex());
-  tx.timestamp = event.block.timestamp;
-  tx.blockNumber = event.block.number;
-  tx.value = event.transaction.value;
-  tx.gasUsed = event.transaction.gasUsed;
-  tx.gasPrice = event.transaction.gasPrice;
-  tx.save();
+  let tx = new Transaction(event.transaction.hash.toHex())
+  tx.timestamp = event.block.timestamp
+  tx.blockNumber = event.block.number
+  tx.value = event.transaction.value
+  tx.gasUsed = event.transaction.gasUsed
+  tx.gasPrice = event.transaction.gasPrice
+  tx.save()
 
-  return tx;
+  return tx
 }
 
 export function getToken(tokenId: BigInt): Token {
-  let token = Token.load(tokenId.toString())
+  let entity = Token.load(tokenId.toString())
 
-  if (!token) {
-    token = new Token(tokenId.toString())
-    token.identifier = tokenId
-    token.isBigSegment = false
-    token.claimablePiece = ZERO_INT
-    token.saleOrder = ZERO_INT
+  if (!entity) {
+    entity = new Token(tokenId.toString())
+    entity.identifier = tokenId
+    entity.isBigSegment = false
+    entity.claimablePiece = ZERO_INT
+    entity.saleOrder = ZERO_INT
 
     let try_tokenURI = getNftInstance().try_tokenURI(tokenId)
-    token.uri = try_tokenURI.reverted ? '' : try_tokenURI.value
+    entity.uri = try_tokenURI.reverted ? '' : try_tokenURI.value
   }
 
-  return token as Token;
+  return entity as Token
 }
 
 export function getUser(address: string): User {
-  let user = User.load(address)
+  let entity = User.load(address)
 
-  if (user == null) {
-    user = new User(address)
-    user.claimablePiece = ZERO_INT
+  if (entity == null) {
+    entity = new User(address)
+    entity.claimablePiece = ZERO_INT
   }
 
-  return user as User
+  return entity as User
+}
+
+export function getCountry(countryName: string, artworkName: String): Country {
+  let id = countryName + "-" + artworkName
+  let entity = Country.load(id)
+
+  if (entity == null) {
+    entity = new Country(id)
+    entity.name = countryName
+    entity.totalSegments = ZERO_INT
+    entity.availableSegments = ZERO_INT
+  }
+
+  return entity as Country
 }
 
 export function getNftInstance(): IERC721 {

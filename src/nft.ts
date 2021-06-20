@@ -40,7 +40,7 @@ export function handleTransfer(event: TransferEvent): void {
 
     // Country
     let countryName = Utils.getCountryByTokenId(parseInt(event.params.tokenId.toString()))
-    let countryEntity = Country.load(countryName + "-" + artwork.name)
+    let countryEntity = Utils.getCountry(countryName, artwork.name)
     countryEntity.availableSegments = countryEntity.availableSegments.minus(Utils.ONE_INT)
     countryEntity.save()
   }
@@ -59,8 +59,7 @@ export function handleTransfer(event: TransferEvent): void {
 }
 
 export function handleNewArtworkCreated(event: NewArtworkCreated): void {
-  let id = event.params.id
-  let artwork = new Artwork(id.toString())
+  let artwork = new Artwork(event.params.id.toString())
   artwork.name = event.params.name
   artwork.soldSegments = Utils.EMPTY_STRING_ARRAY
   artwork.soldSimpleSegmentsCount = Utils.ZERO_INT
