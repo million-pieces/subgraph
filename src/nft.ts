@@ -1,4 +1,4 @@
-import { Transfer, Artwork, Country } from '../generated/schema'
+import { Transfer, Artwork } from '../generated/schema'
 import { Transfer as TransferEvent, NewArtworkCreated } from '../generated/IERC721/IERC721'
 import * as Utils from './utils'
 
@@ -20,6 +20,15 @@ export function handleTransfer(event: TransferEvent): void {
   // Mint cases
   if (from.id == Utils.ZERO_ADDR) {
     Utils.segmentMintHandler(event.params.tokenId)
+
+    // Special segment cases
+    if (Utils.isSpecial(event.params.tokenId)) {
+      token.isBigSegment = true
+      token.claimablePiece = Utils.getPieceReward(Utils.ZERO_INT, event.params.tokenId)
+    }
+
+    // Save coordinates
+    token.coordinate = Utils.getCoordinateByTokenId(event.params.tokenId)
   }
   // Update claimable PIECE if not minted event
   else {
