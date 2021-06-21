@@ -113,6 +113,11 @@ export function segmentMintHandler(id: BigInt): void {
   artwork.tokens = tokens
 
   if (isSpecial(id)) {
+    // Claimable PIECE for special tokens
+    let token = getToken(id)
+    token.claimablePiece = getPieceReward(artwork.soldSegmentsCount, id)
+    token.save()
+
     artwork.soldSpecialSegmentsCount = artwork.soldSpecialSegmentsCount.plus(ONE_INT)
   } else {
     artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(ONE_INT)
