@@ -1,8 +1,5 @@
 import { NewPurchase } from "../generated/Auction/Auction"
-import {
-  Country,
-  Purchase,
-} from "../generated/schema"
+import { Purchase } from "../generated/schema"
 import * as Utils from './utils'
 
 
@@ -17,9 +14,8 @@ export function handleNewPurchase(event: NewPurchase): void {
   token.save()
 
   // Purchase
-  let tokenId = event.params.tokenId.toString()
-  let purchase = new Purchase(tokenId + "-" + event.transaction.hash.toHex())
-  purchase.token = tokenId
+  let purchase = new Purchase(token.id + "-" + event.transaction.hash.toHex())
+  purchase.token = token.id
   purchase.initiator = event.params.purchaser.toHex()
   purchase.buyer = event.params.receiver.toHex()
   purchase.paidAmount = event.params.weiAmount
@@ -32,24 +28,12 @@ export function handleNewPurchase(event: NewPurchase): void {
   user.claimablePiece = user.claimablePiece.plus(claimablePiece)
   user.save()
 
-  // Artwork
+  // Artwork (purchase state)
   artwork.soldSegmentsCount = artwork.soldSegmentsCount.plus(Utils.ONE_INT)
-  artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
   artwork.claimablePiece = Utils.getPieceReward(artwork.soldSegmentsCount, Utils.ZERO_INT)
 
-  // Country
-  let countryName = Utils.getCountryByTokenId(parseInt(event.params.tokenId.toString()))
-  let countryEntity = Utils.getCountry(countryName, artwork.name)
-  countryEntity.availableSegments = countryEntity.availableSegments.minus(Utils.ONE_INT)
-  countryEntity.save()
-
-  let tokens = artwork.tokens
   let soldSegments = artwork.soldSegments
-
-  tokens.push(tokenId)
-  soldSegments.push(tokenId)
-
-  artwork.tokens = tokens
+  soldSegments.push(token.id)
   artwork.soldSegments = soldSegments
 
   artwork.save()

@@ -17,36 +17,12 @@ export function handleTransfer(event: TransferEvent): void {
   ev.to = to.id
   ev.save()
 
-  // Cases when admin minted tokens for giveaway
-  if (from.id == Utils.ZERO_ADDR && transaction.value.equals(Utils.ZERO_INT)) {
-    let artwork = Utils.getArtwork(event.params.tokenId)
-
-    let isSpecial = Utils.isSpecial(event.params.tokenId)
-    if (isSpecial) {
-      artwork.soldSpecialSegmentsCount = artwork.soldSpecialSegmentsCount.plus(Utils.ONE_INT)
-
-      // Add PIECE to Special tokens
-      let claimablePiece = Utils.getPieceReward(artwork.soldSegmentsCount, event.params.tokenId)
-      token.claimablePiece = claimablePiece;
-    } else {
-      artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(Utils.ONE_INT)
-    }
-
-    let tokens = artwork.tokens
-    tokens.push(event.params.tokenId.toString())
-    artwork.tokens = tokens
-
-    artwork.save()
-
-    // Country
-    let countryName = Utils.getCountryByTokenId(parseInt(event.params.tokenId.toString()))
-    let countryEntity = Utils.getCountry(countryName, artwork.name)
-    countryEntity.availableSegments = countryEntity.availableSegments.minus(Utils.ONE_INT)
-    countryEntity.save()
+  // Mint cases
+  if (from.id == Utils.ZERO_ADDR) {
+    Utils.segmentMintHandler(event.params.tokenId)
   }
-
-  // Update claimable PIECE if user transferred tokens
-  if (from.id != Utils.ZERO_ADDR) {
+  // Update claimable PIECE if not minted event
+  else {
     from.claimablePiece = from.claimablePiece.minus(token.claimablePiece)
     to.claimablePiece = to.claimablePiece.plus(token.claimablePiece)
   }

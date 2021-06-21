@@ -98,22 +98,37 @@ export function isSpecial(id: BigInt): boolean {
   return isSpecial
 }
 
-export function getCountryByTokenId(id: number): string {
-  let country = ''
+export function getCountryByTokenId(id: BigInt): string {
+  let country = SEGMENTS[parseInt(id.toString()) - 1 as i32].country
 
-  for (let i = 0; i < SEGMENTS.length; i++) {
-    let segment = SEGMENTS[i]
-    if (segment.id === id) {
-      country = segment.country
-      break
-    }
+  return country;
+}
+
+export function segmentMintHandler(id: BigInt): void {
+  let artwork = getArtwork(id)
+
+  // Artwork updates
+  let tokens = artwork.tokens
+  tokens.push(id.toString())
+  artwork.tokens = tokens
+
+  if (isSpecial(id)) {
+    artwork.soldSpecialSegmentsCount = artwork.soldSpecialSegmentsCount.plus(ONE_INT)
+  } else {
+    artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(ONE_INT)
   }
 
-  return country
+  artwork.save()
+
+  // Country updates
+
+  let countryName = getCountryByTokenId(id)
+  let countryEntity = getCountry(countryName, artwork.name)
+  countryEntity.availableSegments = countryEntity.availableSegments.minus(ONE_INT)
+  countryEntity.save()
 }
 
 // Entities
-
 
 export function getTransaction(event: ethereum.Event): Transaction {
   let tx = new Transaction(event.transaction.hash.toHex())
