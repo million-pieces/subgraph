@@ -104,25 +104,34 @@ export function getCountryByTokenId(id: BigInt): string {
   return country;
 }
 
+export function getCoordinateByTokenId(id: BigInt): string {
+  let coordinate = SEGMENTS[parseInt(id.toString()) - 1 as i32].coordinates
+
+  return coordinate;
+}
+
 export function segmentMintHandler(id: BigInt): void {
   let artwork = getArtwork(id)
+  let token = getToken(id)
 
   // Artwork updates
   let tokens = artwork.tokens
   tokens.push(id.toString())
   artwork.tokens = tokens
 
+  // Token coordinate
+  let coordinate = getCoordinateByTokenId(id)
+  token.coordinate = coordinate
+
   if (isSpecial(id)) {
     // Claimable PIECE for special tokens
-    let token = getToken(id)
     token.claimablePiece = getPieceReward(artwork.soldSegmentsCount, id)
-    token.save()
-
     artwork.soldSpecialSegmentsCount = artwork.soldSpecialSegmentsCount.plus(ONE_INT)
   } else {
     artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(ONE_INT)
   }
 
+  token.save()
   artwork.save()
 
   // Country updates
@@ -156,6 +165,9 @@ export function getToken(tokenId: BigInt): Token {
     entity.isBigSegment = false
     entity.claimablePiece = ZERO_INT
     entity.saleOrder = ZERO_INT
+    entity.owner = ZERO_ADDR
+    entity.transfers = EMPTY_STRING_ARRAY
+    entity.coordinate = ''
 
     let try_tokenURI = getNftInstance().try_tokenURI(tokenId)
     entity.uri = try_tokenURI.reverted ? '' : try_tokenURI.value

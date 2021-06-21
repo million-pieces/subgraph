@@ -83,6 +83,7 @@ type Token @entity {
   identifier: BigInt! # Token ID
   claimablePiece: BigInt! # PIECE amount which token holds
   saleOrder: BigInt!
+  coordinate: String!
 
   isBigSegment: Boolean!
   owner: User!
