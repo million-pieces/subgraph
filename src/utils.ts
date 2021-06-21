@@ -112,30 +112,19 @@ export function getCoordinateByTokenId(id: BigInt): string {
 
 export function segmentMintHandler(id: BigInt): void {
   let artwork = getArtwork(id)
-  let token = getToken(id)
 
   // Artwork updates
   let tokens = artwork.tokens
   tokens.push(id.toString())
   artwork.tokens = tokens
-
-  // Token coordinate
-  let coordinate = getCoordinateByTokenId(id)
-  token.coordinate = coordinate
-
   if (isSpecial(id)) {
-    // Claimable PIECE for special tokens
-    token.claimablePiece = getPieceReward(artwork.soldSegmentsCount, id)
     artwork.soldSpecialSegmentsCount = artwork.soldSpecialSegmentsCount.plus(ONE_INT)
   } else {
     artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(ONE_INT)
   }
-
-  token.save()
   artwork.save()
 
   // Country updates
-
   let countryName = getCountryByTokenId(id)
   let countryEntity = getCountry(countryName, artwork.name)
   countryEntity.availableSegments = countryEntity.availableSegments.minus(ONE_INT)
@@ -166,11 +155,12 @@ export function getToken(tokenId: BigInt): Token {
     entity.claimablePiece = ZERO_INT
     entity.saleOrder = ZERO_INT
     entity.owner = ZERO_ADDR
-    entity.transfers = EMPTY_STRING_ARRAY
     entity.coordinate = ''
 
     let try_tokenURI = getNftInstance().try_tokenURI(tokenId)
     entity.uri = try_tokenURI.reverted ? '' : try_tokenURI.value
+
+    entity.save()
   }
 
   return entity as Token
@@ -182,6 +172,8 @@ export function getUser(address: string): User {
   if (entity == null) {
     entity = new User(address)
     entity.claimablePiece = ZERO_INT
+
+    entity.save()
   }
 
   return entity as User
@@ -196,6 +188,8 @@ export function getCountry(countryName: string, artworkName: String): Country {
     entity.name = countryName
     entity.totalSegments = ZERO_INT
     entity.availableSegments = ZERO_INT
+
+    entity.save()
   }
 
   return entity as Country
