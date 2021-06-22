@@ -5,7 +5,7 @@ import * as Utils from './utils'
 
 export function handleNewPurchase(event: NewPurchase): void {
   let artwork = Utils.getArtwork(event.params.tokenId)
-  let claimablePiece = Utils.getPieceReward(artwork.soldSegmentsCount, event.params.tokenId)
+  let claimablePiece = Utils.getPieceReward(artwork.soldSegmentsCount, event.params.tokenId, false)
 
   // Token
   let token = Utils.getToken(event.params.tokenId)
@@ -30,7 +30,7 @@ export function handleNewPurchase(event: NewPurchase): void {
 
   // Artwork (purchase state)
   artwork.soldSegmentsCount = artwork.soldSegmentsCount.plus(Utils.ONE_INT)
-  artwork.claimablePiece = Utils.getPieceReward(artwork.soldSegmentsCount, Utils.ZERO_INT)
+  artwork.claimablePiece = Utils.getPieceReward(artwork.soldSegmentsCount, Utils.ZERO_INT, false)
 
   let soldSegments = artwork.soldSegments
   soldSegments.push(token.id)

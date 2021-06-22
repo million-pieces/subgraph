@@ -1,4 +1,4 @@
-import { ethereum, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
+import { ethereum, BigInt, BigDecimal, Address, log } from '@graphprotocol/graph-ts'
 import { Country, Transaction, Token, User, Artwork } from '../generated/schema'
 import { IERC721 } from '../generated/IERC721/IERC721'
 import { SEGMENTS } from "./segmentsList"
@@ -11,6 +11,12 @@ export let ONE_DEC = BigDecimal.fromString('1')
 export let PRECISION = new BigDecimal(tenPow(18))
 export let ETH_ADDR = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 export let ZERO_ADDR = '0x0000000000000000000000000000000000000000'
+
+// Addresses who allowed to mint free tokens (minter address and multi-minter contract)
+export let MINTER_ADDR = Address.fromString('0xC730eC34fB124dc5D69e59C973Eb54d63254F5dc')
+export let DEVELOPER_ADDRESS = Address.fromString('0x66697a685e4D78ACF54f9aE9EBe1496656b74f59')
+export let MULTI_MINTER_ADDR = Address.fromString('0x542C74e0985DA89aA78a061C0cfE69E02D915b38')
+
 export let NFT_ADDRESS = Address.fromString('0x0894C8287975Bb24967d54475D1E8e9A6CDbEEC3')
 export let ARTWORK_SEGMENTS = new BigInt(10000)
 
@@ -35,7 +41,11 @@ export function normalize(i: BigInt, decimals: number = 18): BigDecimal {
   return i.toBigDecimal().div(tenPow(decimals).toBigDecimal())
 }
 
-export function getPieceReward(currentSegmentPlace: BigInt, tokenId: BigInt): BigInt {
+export function getPieceReward(currentSegmentPlace: BigInt, tokenId: BigInt, isGiveAway: boolean): BigInt {
+  if (isGiveAway) {
+    return BigInt.fromString('50');
+  }
+
   // Big cities have 500
   if (tokenId.notEqual(BigInt.fromString('0')) && isSpecial(tokenId)) {
     return BigInt.fromString('500')
@@ -129,6 +139,14 @@ export function segmentMintHandler(id: BigInt): void {
   let countryEntity = getCountry(countryName, artwork.name)
   countryEntity.availableSegments = countryEntity.availableSegments.minus(ONE_INT)
   countryEntity.save()
+}
+
+export function isGiveAwayTx(event: ethereum.Event): boolean {
+  if (event.transaction.from.toHex() == MINTER_ADDR.toHex() || event.transaction.from.toHex() == DEVELOPER_ADDRESS.toHex()) {
+    return true
+  } else {
+    return false
+  }
 }
 
 // Entities

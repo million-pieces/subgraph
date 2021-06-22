@@ -19,13 +19,20 @@ export function handleTransfer(event: TransferEvent): void {
 
   // Mint cases
   if (from.id == Utils.ZERO_ADDR) {
+    let tokenPieceAmount = Utils.ZERO_INT
     Utils.segmentMintHandler(event.params.tokenId)
 
     // Special segment cases
     if (Utils.isSpecial(event.params.tokenId)) {
       token.isBigSegment = true
-      token.claimablePiece = Utils.getPieceReward(Utils.ZERO_INT, event.params.tokenId)
+      tokenPieceAmount = Utils.getPieceReward(Utils.ZERO_INT, event.params.tokenId, false)
+    } else if (Utils.isGiveAwayTx(event)) {
+      tokenPieceAmount = Utils.getPieceReward(Utils.ZERO_INT, event.params.tokenId, true)
     }
+
+    // Save claimable PIECE amount
+    token.claimablePiece = tokenPieceAmount
+    to.claimablePiece = to.claimablePiece.plus(tokenPieceAmount)
 
     // Save coordinates
     token.coordinate = Utils.getCoordinateByTokenId(event.params.tokenId)
@@ -51,7 +58,7 @@ export function handleNewArtworkCreated(event: NewArtworkCreated): void {
   artwork.soldSpecialSegmentsCount = Utils.ZERO_INT
   artwork.soldSegmentsCount = Utils.ZERO_INT
   artwork.tokens = Utils.EMPTY_STRING_ARRAY
-  artwork.claimablePiece = Utils.getPieceReward(Utils.ZERO_INT, Utils.ZERO_INT)
+  artwork.claimablePiece = Utils.getPieceReward(Utils.ZERO_INT, Utils.ZERO_INT, false)
   artwork.countries = Utils.getInitialCountries(event.params.name.toString());
   artwork.save()
 }
