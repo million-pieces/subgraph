@@ -13,7 +13,9 @@ type Artwork @entity {
   soldSpecialSegmentsCount: BigInt!
   soldSegmentsCount: BigInt! # Minted for ETH, not for giveaway like soldSimpleSegmentsCount
   claimablePiece: BigInt!
+
   countries: [Country!]
+  unsoldIds: [String!]
 }
 
 type Country @entity {

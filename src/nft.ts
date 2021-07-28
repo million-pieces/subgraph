@@ -58,7 +58,8 @@ export function handleNewArtworkCreated(event: NewArtworkCreated): void {
   artwork.soldSpecialSegmentsCount = Utils.ZERO_INT
   artwork.soldSegmentsCount = Utils.ZERO_INT
   artwork.tokens = Utils.EMPTY_STRING_ARRAY
+  artwork.unsoldIds = Utils.getSegmentsIds()
   artwork.claimablePiece = Utils.getPieceReward(Utils.ZERO_INT, Utils.ZERO_INT, false)
-  artwork.countries = Utils.getInitialCountries(event.params.name.toString());
+  artwork.countries = Utils.getInitialCountries(event.params.name.toString())
   artwork.save()
 }

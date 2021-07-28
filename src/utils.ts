@@ -1,4 +1,4 @@
-import { ethereum, BigInt, BigDecimal, Address, log } from '@graphprotocol/graph-ts'
+import { ethereum, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 import { Country, Transaction, Token, User, Artwork } from '../generated/schema'
 import { IERC721 } from '../generated/IERC721/IERC721'
 import { SEGMENTS } from "./segmentsList"
@@ -102,6 +102,16 @@ export function getInitialCountries(artworkName: String): string[] {
   return artworkCountries
 }
 
+export function getSegmentsIds(): string[] {
+  let segmentsIds = EMPTY_STRING_ARRAY
+
+  for (let i = 1; i <= 10000; i++) {
+    segmentsIds.push(i.toString())
+  }
+
+  return segmentsIds
+}
+
 export function isSpecial(id: BigInt): boolean {
   let try_isSpecialSegment = getNftInstance().try_isSpecialSegment(id)
   let isSpecial = try_isSpecialSegment.reverted ? false : try_isSpecialSegment.value
@@ -132,6 +142,14 @@ export function segmentMintHandler(id: BigInt): void {
   } else {
     artwork.soldSimpleSegmentsCount = artwork.soldSimpleSegmentsCount.plus(ONE_INT)
   }
+
+  // Sold segments updates
+  let unsoldIds = artwork.unsoldIds
+  let idIndex = unsoldIds.indexOf(id.toString())
+  if (idIndex > -1) {
+    unsoldIds.splice(idIndex, 1)
+  }
+  artwork.unsoldIds = unsoldIds
   artwork.save()
 
   // Country updates
